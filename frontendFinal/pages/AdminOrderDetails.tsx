@@ -23,8 +23,9 @@ export const AdminOrderDetails: React.FC = () => {
   };
 
   const handleDownloadInvoice = () => {
+    const apiBase = import.meta.env.MODE === "production" ? "/api" : "http://localhost:5000/api";
     window.open(
-      `http://localhost:5000/api/admin/orders/${id}/invoice`,
+      `${apiBase}/admin/orders/${id}/invoice`,
       "_blank"
     );
   };
