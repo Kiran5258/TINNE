@@ -1,38 +1,47 @@
-const mongoose=require("mongoose");
+const mongoose = require("mongoose");
 const { PRODUCT_CATEGORIES } = require("../constants/category.enum");
 
-const productSchema=new mongoose.Schema({
-    productName:{
-        type:String,
-        required:true,
+const productSchema = new mongoose.Schema({
+    productName: {
+        type: String,
+        required: true,
     },
-    description:{
-        type:String,
-        required:true,
+    description: {
+        type: String,
+        required: true,
     },
-    price: { type: Number, required: true },
-    offerPrice:{
-        type:String,
-        required:true,
+    price: {
+        type: Number,
+        required: true
     },
-    size:{
-        type:[String],
-        required:true
-    },
-    image:{
-        type:String,
-        required:true,
-        default:null,
-    },
-    category:{
-        type:String,
-        required:true,
-        enum:PRODUCT_CATEGORIES,
-    },
-    stocks:{
-        type:Number,
-        required:true,
-    },
-},{timestamps:true});
 
-module.exports=mongoose.model("Product",productSchema);
+    // offer price = discount %
+    offerPrice: {
+        type: Number,
+        required: false,
+        min: 0,
+        max: 100,
+    },
+
+    sizes: [
+        {
+            label: { type: String, required: true }, // e.g., "500g"
+            stock: { type: Number, required: true },  // e.g., 10
+            price: { type: Number, required: true }   // e.g., 100
+        }
+    ],
+
+    images: [{
+        type: String,
+        required: true,
+    }],
+
+    category: {
+        type: String,
+        required: true,
+        enum: PRODUCT_CATEGORIES,
+    },
+
+}, { timestamps: true });
+
+module.exports = mongoose.model("Product", productSchema);

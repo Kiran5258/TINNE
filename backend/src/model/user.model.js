@@ -1,19 +1,31 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const addressSchema = require('./address.model');
 
 const userSchema = new mongoose.Schema({
-    firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    address: {
-        addressNo: { type: String, required: true },
-        address:{type:String,required:true},
-        city: { type: String, required: true },
-        state: { type: String, required: true },
-        pinNo: { type: String, required: true },
+    fullName:{
+        type:String,
+        required:true,
     },
-    isAdmin: { type: Boolean, default: false }
+    phoneNo:{
+        type:String,
+        required:true,
+    },
+    email:{
+        type:String,
+        required:true,
+        unique:true,
+    },
+    password:{
+        type:String,
+        required:true,
+    },
+    addresses: [addressSchema],
+    role: { 
+        type: String, 
+        enum: ["user", "admin"], 
+        default: "user" 
+    },
 },{timestamps:true});
 
 userSchema.pre("save", async function () {

@@ -3,14 +3,26 @@ const User = require("../model/user.model");
 
 exports.Register = async (req, res, next) => {
   try {
-    const { firstName, lastName, email, password, address } = req.body;
+    const { fullName, email, password, phoneNo, addresses } = req.body;
 
-    if (!firstName || !lastName || !email || !password || !address) {
+    // Validate fields
+    if (!fullName || !email || !password || !phoneNo ||!addresses) {
       const error = new Error("All fields required");
       error.statusCode = 400;
       return next(error);
     }
 
+    // Check if addresses array is empty
+    if (!Array.isArray(addresses) || addresses.length === 0) {
+      const error = new Error("At least one address is required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    // 🟢 Force first address to be primary
+    addresses[0].isPrimary = true;
+
+    // Check existing user
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       const error = new Error("User already exists");
@@ -18,19 +30,26 @@ exports.Register = async (req, res, next) => {
       return next(error);
     }
 
-    const user = await User.create({ firstName, lastName, email, password, address });
+    // Create user
+    const user = await User.create({
+      fullName,
+      email,
+      password,
+      phoneNo,
+      addresses,
+    });
 
     return res.status(201).json({
       success: true,
       message: "Register success",
       user,
-      token:generateToken(user._id,res)
+      token: generateToken(user._id, res),
     });
-
   } catch (err) {
-    next(err);  // automatically sends to error middleware
+    next(err);
   }
 };
+
 
 exports.Login=async(req,res,next)=>{
     try{
@@ -63,24 +82,30 @@ exports.Login=async(req,res,next)=>{
     }
 }
 
-exports.Logout=async(req,res,next)=>{
-  try{
-    res.cookie("jwt","",{maxAge:0});
-    res.status(200).json({message:"Logout successfully"});
-  }
-  catch(err){
-    next(err);
-  }
-}
+exports.Logout = async (req, res, next) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+    });
 
-exports.checkAuth=(req,res,next)=>{
-  try{
-    res.status(200).json(req.user);
-  }
-  catch(err){
+    res.status(200).json({ message: "Logout successful" });
+  } catch (err) {
     next(err);
   }
-}
+};
+
+exports.checkAuth = (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Not authenticated" });
+  }
+
+  res.status(200).json({
+    user: req.user,  
+  });
+};
+
 
 // UPDATE PROFILE (User can update name + address)
 exports.updateProfile = async (req, res, next) => {

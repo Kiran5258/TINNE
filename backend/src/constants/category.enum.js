@@ -1,8 +1,9 @@
-module.exports={
-    PRODUCT_CATEGORIES:[
-        "milets",
-        "nuts",
-        "pickles",
-        "spices",
-    ]
+module.exports = {
+  PRODUCT_CATEGORIES: [
+    "millets",
+    "nuts",
+    "pickles",
+    "spices",
+    "rice"
+  ]
 }
