@@ -23,7 +23,9 @@ export const AdminOrderDetails: React.FC = () => {
   };
 
   const handleDownloadInvoice = () => {
-    const apiBase = import.meta.env.MODE === "production" ? "/api" : "http://localhost:5000/api";
+    const apiBase = import.meta.env.MODE === "production" 
+      ? (import.meta.env.VITE_API_URL || "https://your-backend-url.onrender.com/api") 
+      : "http://localhost:5000/api";
     window.open(
       `${apiBase}/admin/orders/${id}/invoice`,
       "_blank"

@@ -1,5 +1,4 @@
 const express = require('express');
-const path = require('path');
 const dotenv = require('dotenv');
 const cors = require("cors");
 const cookieParser = require('cookie-parser');
@@ -38,16 +37,6 @@ app.use("/api/settings", settingRouter);
 
 // ----- GLOBAL ERROR MIDDLEWARE (MUST BE LAST) -----
 app.use(errorHandler);
-
-// ----- SERVE FRONTEND (FOR PRODUCTION) -----
-if (process.env.NODE_ENV === "production") {
-    const frontendPath = path.join(__dirname, "../frontendFinal/dist");
-    app.use(express.static(frontendPath));
-
-    app.get("*", (req, res) => {
-        res.sendFile(path.resolve(frontendPath, "index.html"));
-    });
-}
 
 
 // ----- START SERVER -----
