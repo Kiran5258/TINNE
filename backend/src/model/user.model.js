@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
     },
     phoneNo:{
         type:String,
-        required:true,
+        required:false,
     },
     email:{
         type:String,
@@ -18,7 +18,12 @@ const userSchema = new mongoose.Schema({
     },
     password:{
         type:String,
-        required:true,
+        required:false,
+    },
+    googleId:{
+        type:String,
+        unique:true,
+        sparse:true
     },
     addresses: [addressSchema],
     role: { 

@@ -1,5 +1,42 @@
 const generateToken = require("../config/util");
 const User = require("../model/user.model");
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+exports.googleLogin = async (req, res, next) => {
+  try {
+    const { tokenId } = req.body;
+    const ticket = await client.verifyIdToken({
+      idToken: tokenId,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const { sub, email, name } = ticket.getPayload();
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // Create user if not exists
+      user = await User.create({
+        fullName: name,
+        email,
+        googleId: sub,
+      });
+    } else if (!user.googleId) {
+      // Link account if user exists but first time using Google
+      user.googleId = sub;
+      await user.save();
+    }
+
+    const token = generateToken(user._id, res);
+    res.status(200).json({
+      message: "Success",
+      user,
+      token,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 exports.Register = async (req, res, next) => {
   try {

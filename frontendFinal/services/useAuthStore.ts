@@ -77,6 +77,7 @@ interface AuthStore {
   logout: () => Promise<void>;
   isAuthenticated: () => boolean;
   updateprofile: (data: any) => Promise<void>;
+  googleLogin: (tokenId: string) => Promise<void>;
 }
 
 // ======================
@@ -180,6 +181,23 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       toast.error(err.response?.data?.message || "Update failed");
     } finally {
       set({ isUpdatingProfile: false });
+    }
+  },
+
+  // ------------------------------
+  // GOOGLE LOGIN
+  // ------------------------------
+  googleLogin: async (tokenId: string) => {
+    set({ isLoginIn: true });
+
+    try {
+      const res = await axiosInstance.post<{ user: IUser }>("/auth/google-login", { tokenId });
+      set({ authUser: res.data.user });
+      toast.success("Google login successful");
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Google login failed");
+    } finally {
+      set({ isLoginIn: false });
     }
   },
 }));

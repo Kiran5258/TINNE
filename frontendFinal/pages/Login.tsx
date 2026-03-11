@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import { toast } from 'react-hot-toast';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { useAuthStore } from '../services/useAuthStore';
 import { validateEmail, validateRequired } from '../utils/validation';
+
+import { GoogleLogin } from '@react-oauth/google';
 
 export const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -11,7 +14,7 @@ export const Login: React.FC = () => {
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [loading, setLoading] = useState(false);
 
-  const { login } = useAuthStore();
+  const { login, googleLogin } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -103,6 +106,29 @@ export const Login: React.FC = () => {
           <Button type="submit" className="w-full" isLoading={loading}>
             Sign in
           </Button>
+
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">Or continue with</span>
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-center">
+              <GoogleLogin
+                onSuccess={async credentialResponse => {
+                  await googleLogin(credentialResponse.credential!);
+                  navigate(from, { replace: true });
+                }}
+                onError={() => {
+                  toast.error("Google Login Failed");
+                }}
+              />
+            </div>
+          </div>
         </form>
       </div>
     </div>
