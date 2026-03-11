@@ -18,7 +18,7 @@ const app = express();
 
 // ----- MIDDLEWARES -----
 app.use(cors({
-    origin: process.env.NODE_ENV === "production" ? process.env.CLIENT_URL : "http://localhost:3000",
+    origin: true,
     credentials: true,
 }));
 app.use(express.json({ limit: "50mb" }));

@@ -1,5 +1,6 @@
 const generateToken = require("../config/util");
 const User = require("../model/user.model");
+const { sendWelcomeEmail } = require("../utils/sendWelcomeEmail");
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -21,6 +22,7 @@ exports.googleLogin = async (req, res, next) => {
         email,
         googleId: sub,
       });
+      await sendWelcomeEmail(user);
     } else if (!user.googleId) {
       // Link account if user exists but first time using Google
       user.googleId = sub;
@@ -76,6 +78,8 @@ exports.Register = async (req, res, next) => {
       addresses,
     });
 
+    await sendWelcomeEmail(user);
+
     return res.status(201).json({
       success: true,
       message: "Register success",
@@ -88,33 +92,40 @@ exports.Register = async (req, res, next) => {
 };
 
 
-exports.Login=async(req,res,next)=>{
-    try{
-        const{email,password}=req.body;
-        if(!email||!password){
-            const error=new Error("All field required");
-            error.statusCode=400;
+exports.Login = async (req, res, next) => {
+    try {
+        const { email, password } = req.body;
+        console.log(`Login attempt for: ${email}`);
+
+        if (!email || !password) {
+            const error = new Error("Email and password are required");
+            error.statusCode = 400;
             return next(error);
         }
-        const exisitingUser=await User.findOne({email});
-        if(!exisitingUser){
-            const error=new Error("User is doesn't exisiting");
-            error.statusCode=400
-            return next(error); 
-        }
-        const isMatch=await exisitingUser.comparePassword(password);
-        if(!isMatch){
-            const error=new Error("Invalid password");
-            error.statusCode=400;
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            console.log("Login failed: User not found");
+            const error = new Error("Invalid email or password");
+            error.statusCode = 400;
             return next(error);
         }
-        const token=generateToken(exisitingUser._id,res);
+
+        const isMatch = await user.comparePassword(password);
+        if (!isMatch) {
+            console.log("Login failed: Password mismatch");
+            const error = new Error("Invalid email or password");
+            error.statusCode = 400;
+            return next(error);
+        }
+
+        const token = generateToken(user._id, res);
         return res.status(200).json({
-            message:"Success",
-            user:exisitingUser,
+            message: "Success",
+            user: user,
             token,
-        })
-    }catch(err){
+        });
+    } catch (err) {
         next(err);
     }
 }
