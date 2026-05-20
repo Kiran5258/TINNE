@@ -33,6 +33,18 @@ const userSchema = new mongoose.Schema({
         enum: ["user", "admin"], 
         default: "user" 
     },
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+    otp: {
+        type: String,
+        required: false
+    },
+    otpExpiry: {
+        type: Date,
+        required: false
+    }
 },{timestamps:true});
 
 userSchema.pre("save", async function () {

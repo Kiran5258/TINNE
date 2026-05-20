@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { toast } from "react-hot-toast";
 import { axiosInstance } from "../config/axios";
+import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { auth, googleProvider } from "../config/firebase";
 
 // ======================
 // TYPES
@@ -69,7 +71,7 @@ interface AuthStore {
   signupStepOneData: ISignupData | null;
 
   setSignupStepOne: (data: ISignupData) => void;
-  finalRegister: (data: IFinalRegisterData) => Promise<void>;
+  finalRegister: (data: IFinalRegisterData) => Promise<{ requiresVerification?: boolean; email?: string } | void>;
 
   checkAuth: () => Promise<void>;
   signup: (data: ISignupData) => Promise<void>;
@@ -77,7 +79,9 @@ interface AuthStore {
   logout: () => Promise<void>;
   isAuthenticated: () => boolean;
   updateprofile: (data: any) => Promise<void>;
-  googleLogin: (tokenId: string) => Promise<void>;
+  googleLogin: () => Promise<void>;
+  verifyOTP: (email: string, otp: string) => Promise<void>;
+  resendOTP: (email: string) => Promise<void>;
 }
 
 // ======================
@@ -100,10 +104,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   // FINAL REGISTER (Step-1 + Step-2)
   finalRegister: async (finalData: IFinalRegisterData) => {
     try {
-      const res = await axiosInstance.post<{ user: IUser }>("/auth/register", finalData);
+      const res = await axiosInstance.post<{ user: IUser; requiresVerification?: boolean; email?: string }>("/auth/register", finalData);
+
+      if (res.data.requiresVerification) {
+        toast.success("Verification code sent to your email!");
+        return { requiresVerification: true, email: res.data.email };
+      }
 
       set({ authUser: res.data.user });
-
       toast.success("Registration completed!");
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Registration failed");
@@ -141,7 +149,12 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       set({ authUser: res.data.user });
       toast.success("Login successful");
     } catch (err: any) {
+      if (err.response?.data?.requiresVerification) {
+        toast.error(err.response.data.message);
+        throw err.response.data; // Pass requiresVerification and email back
+      }
       toast.error(err.response?.data?.message || "Login failed");
+      throw err;
     } finally {
       set({ isLoginIn: false });
     }
@@ -187,17 +200,51 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   // ------------------------------
   // GOOGLE LOGIN
   // ------------------------------
-  googleLogin: async (tokenId: string) => {
+  googleLogin: async () => {
     set({ isLoginIn: true });
 
     try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      const tokenId = credential?.idToken;
+
+      if (!tokenId) {
+        throw new Error("Could not retrieve Google sign-in credential ID token.");
+      }
+
       const res = await axiosInstance.post<{ user: IUser }>("/auth/google-login", { tokenId });
       set({ authUser: res.data.user });
       toast.success("Google login successful");
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Google login failed");
+      console.error("Google Sign-In Error:", err);
+      toast.error(err.response?.data?.message || err.message || "Google login failed");
+      throw err;
     } finally {
       set({ isLoginIn: false });
+    }
+  },
+
+  verifyOTP: async (email: string, otp: string) => {
+    set({ isLoginIn: true });
+    try {
+      const res = await axiosInstance.post<{ user: IUser }>("/auth/verify-otp", { email, otp });
+      set({ authUser: res.data.user });
+      toast.success("Email verified successfully!");
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Verification failed");
+      throw err;
+    } finally {
+      set({ isLoginIn: false });
+    }
+  },
+
+  resendOTP: async (email: string) => {
+    try {
+      await axiosInstance.post("/auth/resend-otp", { email });
+      toast.success("Verification code resent successfully!");
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to resend code");
+      throw err;
     }
   },
 }));

@@ -1,16 +1,40 @@
 const generateToken = require("../config/util");
 const User = require("../model/user.model");
 const { sendWelcomeEmail } = require("../utils/sendWelcomeEmail");
+const { sendOTPEmail } = require("../utils/sendOTPEmail");
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+const jwt = require("jsonwebtoken");
 
 exports.googleLogin = async (req, res, next) => {
   try {
     const { tokenId } = req.body;
-    const ticket = await client.verifyIdToken({
-      idToken: tokenId,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
+    
+    // Decode token to inspect the audience client ID
+    const decoded = jwt.decode(tokenId);
+    const tokenAudience = decoded?.aud;
+
+    let ticket;
+    try {
+      ticket = await client.verifyIdToken({
+        idToken: tokenId,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+    } catch (verifyErr) {
+      console.error("\n=== Google ID Token Verification Error ===");
+      console.error("Token Audience (Client ID from frontend):", tokenAudience);
+      console.error("Expected GOOGLE_CLIENT_ID in backend .env:", process.env.GOOGLE_CLIENT_ID);
+      console.error("Error Details:", verifyErr.message);
+      console.error("=========================================\n");
+
+      const error = new Error(
+        `Wrong recipient. Frontend Client ID (${tokenAudience}) does not match backend GOOGLE_CLIENT_ID (${process.env.GOOGLE_CLIENT_ID}). Please update your backend .env file.`
+      );
+      error.statusCode = 400;
+      return next(error);
+    }
+    
     const { sub, email, name } = ticket.getPayload();
 
     let user = await User.findOne({ email });
@@ -21,12 +45,23 @@ exports.googleLogin = async (req, res, next) => {
         fullName: name,
         email,
         googleId: sub,
+        isVerified: true, // Google email is already verified
       });
       await sendWelcomeEmail(user);
-    } else if (!user.googleId) {
-      // Link account if user exists but first time using Google
-      user.googleId = sub;
-      await user.save();
+    } else {
+      // Auto-verify user and link Google ID if not present
+      let modified = false;
+      if (!user.googleId) {
+        user.googleId = sub;
+        modified = true;
+      }
+      if (!user.isVerified) {
+        user.isVerified = true;
+        modified = true;
+      }
+      if (modified) {
+        await user.save();
+      }
     }
 
     const token = generateToken(user._id, res);
@@ -45,7 +80,7 @@ exports.Register = async (req, res, next) => {
     const { fullName, email, password, phoneNo, addresses } = req.body;
 
     // Validate fields
-    if (!fullName || !email || !password || !phoneNo ||!addresses) {
+    if (!fullName || !email || !password || !phoneNo || !addresses) {
       const error = new Error("All fields required");
       error.statusCode = 400;
       return next(error);
@@ -58,39 +93,53 @@ exports.Register = async (req, res, next) => {
       return next(error);
     }
 
-    // 🟢 Force first address to be primary
+    // Force first address to be primary
     addresses[0].isPrimary = true;
 
     // Check existing user
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      const error = new Error("User already exists");
-      error.statusCode = 400;
-      return next(error);
+    let user = await User.findOne({ email });
+    if (user) {
+      if (user.isVerified) {
+        const error = new Error("User already exists");
+        error.statusCode = 400;
+        return next(error);
+      } else {
+        // Update user registration details if not verified yet
+        user.fullName = fullName;
+        user.password = password; // hashed in pre-save hook
+        user.phoneNo = phoneNo;
+        user.addresses = addresses;
+      }
+    } else {
+      // Create user (unverified by default)
+      user = new User({
+        fullName,
+        email,
+        password,
+        phoneNo,
+        addresses,
+        isVerified: false,
+      });
     }
 
-    // Create user
-    const user = await User.create({
-      fullName,
-      email,
-      password,
-      phoneNo,
-      addresses,
-    });
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.otp = otp;
+    user.otpExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
 
-    await sendWelcomeEmail(user);
+    await user.save();
+    await sendOTPEmail(user.email, user.fullName, otp);
 
     return res.status(201).json({
       success: true,
-      message: "Register success",
-      user,
-      token: generateToken(user._id, res),
+      message: "OTP sent to email. Please verify.",
+      requiresVerification: true,
+      email: email,
     });
   } catch (err) {
     next(err);
   }
 };
-
 
 exports.Login = async (req, res, next) => {
     try {
@@ -119,6 +168,21 @@ exports.Login = async (req, res, next) => {
             return next(error);
         }
 
+        // Check if user email is verified
+        if (!user.isVerified) {
+            const otp = Math.floor(100000 + Math.random() * 900000).toString();
+            user.otp = otp;
+            user.otpExpiry = Date.now() + 10 * 60 * 1000;
+            await user.save();
+            await sendOTPEmail(user.email, user.fullName, otp);
+
+            const error = new Error("Email is not verified. A verification code has been sent to your email.");
+            error.statusCode = 403;
+            error.requiresVerification = true;
+            error.email = email;
+            return next(error);
+        }
+
         const token = generateToken(user._id, res);
         return res.status(200).json({
             message: "Success",
@@ -129,6 +193,98 @@ exports.Login = async (req, res, next) => {
         next(err);
     }
 }
+
+exports.verifyOTP = async (req, res, next) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp) {
+      const error = new Error("Email and OTP are required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      const error = new Error("User not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    if (user.isVerified) {
+      const token = generateToken(user._id, res);
+      return res.status(200).json({
+        success: true,
+        message: "Email is already verified",
+        user,
+        token,
+      });
+    }
+
+    if (user.otp !== otp || user.otpExpiry < Date.now()) {
+      const error = new Error("Invalid or expired OTP");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    // Set user as verified
+    user.isVerified = true;
+    user.otp = undefined;
+    user.otpExpiry = undefined;
+    await user.save();
+
+    // Send Welcome Email
+    await sendWelcomeEmail(user);
+
+    const token = generateToken(user._id, res);
+    return res.status(200).json({
+      success: true,
+      message: "Email verified successfully",
+      user,
+      token,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.resendOTP = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      const error = new Error("Email is required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      const error = new Error("User not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    if (user.isVerified) {
+      const error = new Error("Email is already verified");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    // Generate new OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.otp = otp;
+    user.otpExpiry = Date.now() + 10 * 60 * 1000;
+    await user.save();
+
+    await sendOTPEmail(user.email, user.fullName, otp);
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP resent successfully",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 exports.Logout = async (req, res, next) => {
   try {

@@ -13,6 +13,7 @@ import { Home } from './pages/Home';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { Register } from './pages/Register';
+import { VerifyOtp } from './pages/VerifyOtp';
 import { Products } from './pages/Products';
 import { ProductDetails } from './pages/ProductDetails';
 import { AddProduct } from './pages/AddProduct';
@@ -92,6 +93,7 @@ const App: React.FC = () => {
             <Route path="/login" element={!authUser ? <Login /> : <Profile />} />
             <Route path="/signup" element={!authUser ? <Signup /> : <Profile />} />
             <Route path="/register" element={!authUser ? <Register /> : <Profile />} />
+            <Route path="/verify-otp" element={!authUser ? <VerifyOtp /> : <Profile />} />
 
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogDetails />} />

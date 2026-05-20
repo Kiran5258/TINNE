@@ -5,7 +5,6 @@ import { Button } from '../components/Button';
 import { useAuthStore } from '../services/useAuthStore';
 import { validateEmail, validatePassword, validateRequired } from '../utils/validation';
 
-import { GoogleLogin } from '@react-oauth/google';
 import toast from 'react-hot-toast';
 
 export const Signup: React.FC = () => {
@@ -123,16 +122,27 @@ export const Signup: React.FC = () => {
               </div>
             </div>
 
-            <div className="mt-6 flex justify-center">
-              <GoogleLogin
-                onSuccess={async credentialResponse => {
-                  await googleLogin(credentialResponse.credential!);
-                  navigate("/", { replace: true });
+            <div className="mt-6">
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    await googleLogin();
+                    navigate("/", { replace: true });
+                  } catch (err) {
+                    console.error(err);
+                  }
                 }}
-                onError={() => {
-                  toast.error("Google Login Failed");
-                }}
-              />
+                className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-neutral-300 rounded-xl bg-white hover:bg-neutral-50 transition-colors text-neutral-700 font-medium shadow-sm hover:shadow-md active:scale-[0.98]"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24">
+                  <path
+                    fill="#EA4335"
+                    d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.136 4.114A5.99 5.99 0 0 1 8 12.5a5.99 5.99 0 0 1 5.99-6.012c1.49 0 2.858.547 3.918 1.453l3.05-3.05C19.043 3.12 16.69 2 13.99 2 8.156 2 3.42 6.702 3.42 12.5s4.736 10.5 10.57 10.5c5.762 0 10.28-4.086 10.28-10.457 0-.702-.08-1.395-.23-2.258H12.24Z"
+                  />
+                </svg>
+                Sign up with Google
+              </button>
             </div>
           </div>
 

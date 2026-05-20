@@ -123,7 +123,7 @@ export const Register: React.FC = () => {
     setLoading(true);
 
     try {
-      await finalRegister({
+      const res = await finalRegister({
         fullName: formData.fullName,
         phoneNo: formData.phoneNo,
         email: signupStepOneData?.email!,
@@ -140,7 +140,11 @@ export const Register: React.FC = () => {
         ],
       });
 
-      navigate("/");
+      if (res && res.requiresVerification) {
+        navigate("/verify-otp", { state: { email: res.email || signupStepOneData?.email! } });
+      } else {
+        navigate("/");
+      }
     } catch (error) {
       console.error("Registration Failed", error);
     } finally {
