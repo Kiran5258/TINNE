@@ -23,9 +23,16 @@ export const AdminOrderDetails: React.FC = () => {
   };
 
   const handleDownloadInvoice = () => {
-    const apiBase = import.meta.env.MODE === "production" 
-      ? (import.meta.env.VITE_API_URL || "https://your-backend-url.onrender.com/api") 
-      : "http://localhost:5000/api";
+    const apiBase = (() => {
+      const envUrl = import.meta.env.VITE_API_URL;
+      if (envUrl) {
+        const cleanUrl = envUrl.replace(/\/$/, "");
+        return cleanUrl.endsWith("/api") ? cleanUrl : `${cleanUrl}/api`;
+      }
+      return import.meta.env.MODE === "production" 
+        ? "https://your-backend-url.onrender.com/api" 
+        : "http://localhost:5000/api";
+    })();
     window.open(
       `${apiBase}/admin/orders/${id}/invoice`,
       "_blank"
