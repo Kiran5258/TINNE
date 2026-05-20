@@ -205,11 +205,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      const credential = GoogleAuthProvider.credentialFromResult(result);
-      const tokenId = credential?.idToken;
+      const tokenId = await result.user.getIdToken();
 
       if (!tokenId) {
-        throw new Error("Could not retrieve Google sign-in credential ID token.");
+        throw new Error("Could not retrieve Firebase sign-in ID token.");
       }
 
       const res = await axiosInstance.post<{ user: IUser }>("/auth/google-login", { tokenId });

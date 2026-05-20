@@ -2,57 +2,53 @@ const generateToken = require("../config/util");
 const User = require("../model/user.model");
 const { sendWelcomeEmail } = require("../utils/sendWelcomeEmail");
 const { sendOTPEmail } = require("../utils/sendOTPEmail");
-const { OAuth2Client } = require('google-auth-library');
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const admin = require('firebase-admin');
+
+if (admin.apps.length === 0) {
+  admin.initializeApp({
+    projectId: process.env.FIREBASE_PROJECT_ID || "ttinne-fb88d"
+  });
+}
 
 const jwt = require("jsonwebtoken");
 
 exports.googleLogin = async (req, res, next) => {
   try {
     const { tokenId } = req.body;
-    
-    // Decode token to inspect the audience client ID
-    const decoded = jwt.decode(tokenId);
-    const tokenAudience = decoded?.aud;
 
-    let ticket;
+    let decodedToken;
     try {
-      ticket = await client.verifyIdToken({
-        idToken: tokenId,
-        audience: process.env.GOOGLE_CLIENT_ID,
-      });
+      decodedToken = await admin.auth().verifyIdToken(tokenId);
     } catch (verifyErr) {
-      console.error("\n=== Google ID Token Verification Error ===");
-      console.error("Token Audience (Client ID from frontend):", tokenAudience);
-      console.error("Expected GOOGLE_CLIENT_ID in backend .env:", process.env.GOOGLE_CLIENT_ID);
+      console.error("\n=== Firebase ID Token Verification Error ===");
       console.error("Error Details:", verifyErr.message);
-      console.error("=========================================\n");
+      console.error("============================================\n");
 
       const error = new Error(
-        `Wrong recipient. Frontend Client ID (${tokenAudience}) does not match backend GOOGLE_CLIENT_ID (${process.env.GOOGLE_CLIENT_ID}). Please update your backend .env file.`
+        `Firebase token verification failed: ${verifyErr.message}`
       );
       error.statusCode = 400;
       return next(error);
     }
     
-    const { sub, email, name } = ticket.getPayload();
+    const { uid, email, name } = decodedToken;
 
     let user = await User.findOne({ email });
 
     if (!user) {
       // Create user if not exists
       user = await User.create({
-        fullName: name,
+        fullName: name || email.split("@")[0],
         email,
-        googleId: sub,
-        isVerified: true, // Google email is already verified
+        googleId: uid,
+        isVerified: true, // Google/Firebase email is already verified
       });
       await sendWelcomeEmail(user);
     } else {
       // Auto-verify user and link Google ID if not present
       let modified = false;
       if (!user.googleId) {
-        user.googleId = sub;
+        user.googleId = uid;
         modified = true;
       }
       if (!user.isVerified) {
