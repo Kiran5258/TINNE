@@ -5,6 +5,7 @@ import { Product } from '../types';
 import { useProductStore } from '../services/useProductStore';
 import { Reveal } from '../components/Reveal';
 import { IconClose } from '../components/Icons';
+import { SkeletonCard } from '../components/PageLoader';
 
 interface ProductsProps {
   category?: string;
@@ -116,8 +117,8 @@ export const Products: React.FC<ProductsProps> = ({ category: propCategory }) =>
         {/* Products Grid */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            {[1, 2, 3, 4].map((n) => (
-              <div key={n} className="h-96 bg-neutral-100 animate-pulse rounded-2xl"></div>
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+              <SkeletonCard key={n} />
             ))}
           </div>
         ) : (

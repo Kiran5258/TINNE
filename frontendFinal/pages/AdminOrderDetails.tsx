@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useOrderStore } from "../services/useOrderStore";
+import { PageLoader } from "../components/PageLoader";
 
 export const AdminOrderDetails: React.FC = () => {
   const { id } = useParams();
@@ -39,7 +40,7 @@ export const AdminOrderDetails: React.FC = () => {
     );
   };
 
-  if (!order) return <div className="p-10">Loading...</div>;
+  if (!order) return <PageLoader message="Loading order" />;
 
   return (
     <div className="p-10 space-y-10">

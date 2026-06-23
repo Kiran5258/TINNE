@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 
 import { Button } from "../components/Button";
 import RichEditor from "../components/RichEditor";
+import { PageLoader } from "../components/PageLoader";
 
 import { useProductStore } from "@/services/useProductStore";
 import { IconCancel, IconPlus } from "@/components/Icons";
@@ -106,7 +107,7 @@ const EditProduct: React.FC = () => {
     if (updated) navigate("/account/admin/products");
   };
 
-  if (!product) return <p className="p-10">Loading...</p>;
+  if (!product) return <PageLoader message="Loading product" />;
 
   return (
     <div className="max-w-4xl mx-auto p-8">

@@ -51,6 +51,14 @@ export const Navbar: React.FC = () => {
           <NavLink to="/blog">Blog</NavLink>
 
           <Link
+            to="/join-team"
+            className="text-sm font-semibold text-emerald-700 border border-emerald-300 px-4 py-1.5 rounded-full
+            hover:bg-emerald-50 transition-all duration-300"
+          >
+            Join Team
+          </Link>
+
+          <Link
             to="/products"
             className="bg-brand-accent text-brand-dark px-6 py-2 rounded-full font-bold 
             hover:bg-yellow-400 transition-all duration-300 shadow-sm 
@@ -173,6 +181,9 @@ export const Navbar: React.FC = () => {
               <Link to="/">Home</Link>
               <Link to="/about">About</Link>
               <Link to="/blog">Blog</Link>
+              <Link to="/join-team" className="text-emerald-600 font-bold">
+                Join Team
+              </Link>
               <Link to="/products" className="text-brand-dark font-bold">
                 Products
               </Link>

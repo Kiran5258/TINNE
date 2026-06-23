@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { axiosInstance } from "../config/axios";
 import { IconBox } from "../components/Icons";
 import { Link } from "react-router-dom";
+import { SkeletonRow } from "../components/PageLoader";
 
 export const AccountOrders: React.FC = () => {
   const [orders, setOrders] = useState<any[]>([]);
@@ -21,7 +22,12 @@ export const AccountOrders: React.FC = () => {
   }, []);
 
   if (loading) {
-    return <div className="p-10 text-center text-neutral-500">Loading orders...</div>;
+    return (
+      <div className="p-10 space-y-4">
+        <div className="h-7 bg-neutral-100 rounded-full w-40 animate-pulse mb-8" />
+        {[1, 2, 3].map(n => <SkeletonRow key={n} />)}
+      </div>
+    );
   }
 
   if (orders.length === 0) {

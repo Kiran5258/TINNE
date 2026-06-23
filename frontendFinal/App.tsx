@@ -33,6 +33,7 @@ import { AdminOrderDetails } from './pages/AdminOrderDetails';
 import { ScrollToTop } from './components/ScrollToTop';
 import EditProduct from './pages/EditProduct';
 import { AdminHeroBanner } from './pages/AdminHeroBanner';
+import { Ambassador } from './pages/Ambassador';
 
 // Placeholder Page
 const PlaceholderPage: React.FC<{ title: string }> = ({ title }) => (
@@ -98,6 +99,7 @@ const App: React.FC = () => {
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogDetails />} />
             <Route path="/about" element={<About />} />
+            <Route path="/join-team" element={<Ambassador />} />
             <Route path="/cart" element={authUser ? <Cart /> : <Login />} />
 
             {/* Product Routes */}

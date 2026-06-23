@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useOrderStore } from "../services/useOrderStore";
 import { IconArrowRight } from "../components/Icons";
+import { PageLoader } from "../components/PageLoader";
 
 export const OrderDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,7 +20,7 @@ export const OrderDetails: React.FC = () => {
     load();
   }, [id]);
 
-  if (loading) return <div className="p-10">Loading…</div>;
+  if (loading) return <PageLoader message="Loading order" />;
   if (!order)
     return (
       <div className="p-10 text-center">

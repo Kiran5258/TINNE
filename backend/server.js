@@ -1,17 +1,20 @@
-const express = require('express');
 const dotenv = require('dotenv');
+dotenv.config(); // MUST be first so all modules see process.env
+
+const express = require('express');
 const cors = require("cors");
 const cookieParser = require('cookie-parser');
 const connectDb = require('./src/config/db');
 const userrouter = require('./src/router/user.router');
 const errorHandler = require('./src/middleware/error.middleware');
 const productrouter = require("./src/router/product.router");
-const orderRouter = require('./src/router/order.router')
+const orderRouter = require('./src/router/order.router');
 const reviewRoutes = require('./src/router/review.router');
 const heroRoutes = require('./src/router/hero.router');
 const PostRouter = require("./src/router/post.router");
 const settingRouter = require("./src/router/settings.router");
-dotenv.config();
+const ambassadorRouter = require("./src/router/ambassador.router");
+
 connectDb();
 
 const app = express();
@@ -34,6 +37,7 @@ app.use("/api/review", reviewRoutes);
 app.use("/api/hero", heroRoutes);
 app.use("/api/posts", PostRouter);
 app.use("/api/settings", settingRouter);
+app.use("/api/ambassador", ambassadorRouter);
 
 // ----- GLOBAL ERROR MIDDLEWARE (MUST BE LAST) -----
 app.use(errorHandler);

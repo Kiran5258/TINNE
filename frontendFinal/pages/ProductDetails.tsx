@@ -13,6 +13,7 @@ import {
 
 import { useCartStore } from "../services/useCartStore";
 import { useProductStore } from "../services/useProductStore";
+import { PageLoader } from "../components/PageLoader";
 import { useAuthStore } from "../services/useAuthStore";
 import { axiosInstance } from "../config/axios";
 import toast from "react-hot-toast";
@@ -126,7 +127,7 @@ export const ProductDetails: React.FC = () => {
   // ================================
   // LOADING / NOT FOUND
   // ================================
-  if (loading) return <div className="text-center pt-44">Loading...</div>;
+  if (loading) return <PageLoader message="Fetching product" />;
   if (!product)
     return (
       <div className="pt-44 text-center">
