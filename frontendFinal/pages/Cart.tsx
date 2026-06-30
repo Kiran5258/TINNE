@@ -26,7 +26,7 @@ export const Cart: React.FC = () => {
   // If no items in cart
   if (items.length === 0) {
     return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center bg-white pt-20 px-6">
+      <div className="min-h-[70vh] flex flex-col items-center justify-center bg-[#FEFCE8] text-[#1C2E1A] pt-20 px-6">
         <div className="w-24 h-24 bg-brand-muted rounded-full flex items-center justify-center mb-6 text-brand-dark/50">
           <IconBag className="w-10 h-10" />
         </div>
@@ -85,7 +85,7 @@ export const Cart: React.FC = () => {
   const total = subtotal - discountAmount + shipping;
 
   return (
-    <div className="pt-28 pb-20 min-h-screen bg-neutral-50">
+    <div className="pt-28 pb-20 min-h-screen bg-[#FEFCE8] text-[#1C2E1A]">
       <div className="max-w-7xl mx-auto px-6">
 
         <h1 className="text-3xl lg:text-3xl font-display font-bold mb-8 flex items-baseline flex-wrap gap-2">

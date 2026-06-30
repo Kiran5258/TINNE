@@ -10,7 +10,7 @@ interface Props {
 
 export const BlogCard: React.FC<Props> = ({ post, compact = false }) => {
   return (
-    <article className="bg-white rounded-2xl overflow-hidden border hover:shadow-lg transition">
+    <article className="bg-[#FCFBF8] rounded-2xl overflow-hidden border border-amber-900/10 hover:shadow-lg transition">
       <Link to={`/blog/${post.slug}`} target="_blank">
         <img
           src={post.image}
@@ -35,7 +35,7 @@ export const BlogCard: React.FC<Props> = ({ post, compact = false }) => {
           </div>
         )}
 
-        <h3 className="font-bold text-lg mb-2">{post.title}</h3>
+        <h3 className="font-bold text-lg mb-2 text-[#1C2E1A]">{post.title}</h3>
         <p className="text-sm text-neutral-600 mb-4 line-clamp-2">
           {post.excerpt}
         </p>

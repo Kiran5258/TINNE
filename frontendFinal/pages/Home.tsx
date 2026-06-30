@@ -198,12 +198,12 @@ export const Home: React.FC = () => {
       {/* =======================================
           PRODUCT SHOWCASE + CATEGORIES
       ======================================== */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-[#FEFCE8]">
         <div className="max-w-7xl mx-auto px-6">
           {/* Header */}
           <div className="flex justify-between items-end mb-16">
             <Reveal className="max-w-xl">
-              <h2 className="text-4xl font-display font-bold text-neutral-900 mb-3">
+              <h2 className="text-4xl font-display font-bold text-[#1C2E1A] mb-3">
                 Product Showcases
               </h2>
               <div className="h-1 w-20 bg-brand-accent mb-4" />
@@ -222,7 +222,7 @@ export const Home: React.FC = () => {
           </div>
 
           {/* Featured Products */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12 mb-24">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-24">
             {featuredProducts.map((product, idx) => (
               <Reveal key={product._id} delay={idx * 100}>
                 <ProductCard product={product} />
@@ -236,7 +236,7 @@ export const Home: React.FC = () => {
               <span className="text-brand-accent font-bold tracking-wider uppercase text-sm">
                 Discover by Category
               </span>
-              <h3 className="text-2xl font-display font-bold text-neutral-900 mt-2">
+              <h3 className="text-2xl font-display font-bold text-[#1C2E1A] mt-2">
                 Essential Ingredients
               </h3>
             </Reveal>
@@ -281,11 +281,11 @@ export const Home: React.FC = () => {
       {/* =======================================
           BLOG SECTION
       ======================================== */}
-      <section className="py-24 bg-neutral-50 border-t border-neutral-100">
+      <section className="py-24 bg-white/30 backdrop-blur-sm border-t border-amber-900/5">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex justify-between items-end mb-12">
             <Reveal>
-              <h2 className="text-3xl font-display font-bold text-neutral-900">
+              <h2 className="text-3xl font-display font-bold text-[#1C2E1A]">
                 From the Journal
               </h2>
               <p className="text-neutral-500 mt-2">

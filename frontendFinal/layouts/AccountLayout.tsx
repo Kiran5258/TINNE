@@ -9,7 +9,8 @@ import {
   IconLogout,
   IconPlus,
   IconBarChart,
-  IconPackage  // <- you can use any icon for "All Orders"
+  IconPackage,
+  IconUsers
 } from '../components/Icons';
 
 export const AccountLayout: React.FC = () => {
@@ -49,6 +50,11 @@ export const AccountLayout: React.FC = () => {
         label: "All Orders",
         path: "/account/admin/orders",
         icon: IconPackage,
+      },
+      {
+        label: "Ambassadors",
+        path: "/account/admin/ambassadors",
+        icon: IconUsers,
       },
       {
         label: "Add Post",

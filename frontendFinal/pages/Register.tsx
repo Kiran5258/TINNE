@@ -154,8 +154,8 @@ export const Register: React.FC = () => {
 
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 pt-24">
-      <div className="max-w-3xl w-full bg-white rounded-3xl shadow-sm border border-neutral-100 overflow-hidden">
+    <div className="min-h-screen bg-[#FAF6F0] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 pt-24">
+      <div className="max-w-3xl w-full bg-[#FCFBF8] rounded-3xl shadow-sm border border-amber-900/10 overflow-hidden">
 
         {/* Header */}
         <div className="bg-neutral-900 px-8 py-6 text-white flex justify-between items-center">

@@ -21,9 +21,9 @@ const CATEGORIES = [
 ];
 
 export const Products: React.FC<ProductsProps> = ({ category: propCategory }) => {
-
   const fetchProducts = useProductStore((state) => state.fetchProducts);
-  const { products: allProducts } = useProductStore();
+  const allProducts = useProductStore((state) => state.products);
+  const storeLoading = useProductStore((state) => state.loading);
 
   const { category: paramCategory } = useParams<{ category: string }>();
   const [searchParams] = useSearchParams();
@@ -33,42 +33,40 @@ export const Products: React.FC<ProductsProps> = ({ category: propCategory }) =>
   const navigate = useNavigate();
 
   const [displayProducts, setDisplayProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [localLoading, setLocalLoading] = useState(allProducts.length === 0);
 
-  // Fetch products from backend ONE TIME
+  // Fetch products on mount
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    setLocalLoading(allProducts.length === 0);
+    fetchProducts().finally(() => {
+      setLocalLoading(false);
+    });
+  }, [fetchProducts]);
 
   // Filter products
   useEffect(() => {
-    setLoading(true);
+    let filtered = [...allProducts];
 
-    const timer = setTimeout(() => {
-      let filtered = [...allProducts];
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter((p) =>
+        p.productName.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q) ||
+        p.category.toLowerCase().includes(q)
+      );
+    } else if (activeCategory !== "all") {
+      filtered = filtered.filter(
+        (p) => p.category.toLowerCase() === activeCategory.toLowerCase()
+      );
+    }
 
-      if (searchQuery) {
-        const q = searchQuery.toLowerCase();
-        filtered = filtered.filter((p) =>
-          p.productName.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q) ||
-          p.category.toLowerCase().includes(q)
-        );
-      } else if (activeCategory !== "all") {
-        filtered = filtered.filter(
-          (p) => p.category.toLowerCase() === activeCategory.toLowerCase()
-        );
-      }
-
-      setDisplayProducts(filtered);
-      setLoading(false);
-    }, 300);
-
-    return () => clearTimeout(timer);
+    setDisplayProducts(filtered);
   }, [activeCategory, allProducts, searchQuery]);
 
+  const loading = storeLoading || localLoading;
+
   return (
-    <div className="pt-24 pb-20 min-h-screen">
+    <div className="pt-28 pb-20 min-h-screen bg-[#FAF6F0]">
       <div className="max-w-7xl mx-auto px-6">
 
         {/* Category Slider */}
@@ -79,10 +77,10 @@ export const Products: React.FC<ProductsProps> = ({ category: propCategory }) =>
                 <button
                   key={cat.id}
                   onClick={() => navigate(cat.path)}
-                  className={`px-6 py-3 rounded-full text-sm font-medium border transition-all ${
+                  className={`px-6 py-2.5 rounded-full text-sm font-medium border transition-all ${
                     activeCategory === cat.id
-                      ? "bg-brand-dark text-white border-brand-dark"
-                      : "bg-white text-neutral-600 border-neutral-200"
+                      ? "bg-[#153A1D] text-white border-[#153A1D]"
+                      : "bg-[#FCFBF8] text-neutral-600 border-amber-900/15 hover:border-[#153A1D]/30"
                   }`}
                 >
                   {cat.label}
@@ -93,12 +91,12 @@ export const Products: React.FC<ProductsProps> = ({ category: propCategory }) =>
         )}
 
         {/* Header */}
-        <header className="mb-8 border-b pb-6">
-          <h1 className="text-3xl font-display font-bold mb-2">
+        <header className="mb-8 border-b border-amber-900/10 pb-6">
+          <h1 className="text-3xl font-display font-extrabold mb-2 text-[#1C2E1A]">
             {searchQuery ? `Search results for "${searchQuery}"` : "Products"}
           </h1>
 
-          <p className="text-neutral-500">
+          <p className="text-[#5A5A5A] font-light">
             {searchQuery
               ? `Found ${displayProducts.length} results`
               : "Browse our organic collection"}
@@ -107,7 +105,7 @@ export const Products: React.FC<ProductsProps> = ({ category: propCategory }) =>
           {searchQuery && (
             <button
               onClick={() => navigate("/products")}
-              className="mt-3 text-sm flex items-center text-brand-dark"
+              className="mt-3 text-sm flex items-center text-[#153A1D] hover:underline font-medium"
             >
               Clear Search <IconClose className="w-4 h-4 ml-1" />
             </button>
@@ -116,13 +114,13 @@ export const Products: React.FC<ProductsProps> = ({ category: propCategory }) =>
 
         {/* Products Grid */}
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {[1, 2, 3, 4, 5, 6].map((n) => (
               <SkeletonCard key={n} />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {displayProducts.length > 0 ? (
               displayProducts.map((product) => (
                 <Reveal key={product._id}>

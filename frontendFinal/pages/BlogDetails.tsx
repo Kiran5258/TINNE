@@ -53,10 +53,10 @@ export const BlogDetails: React.FC = () => {
   }
 
   return (
-    <div className="bg-white min-h-screen pt-20">
+    <div className="bg-[#FEFCE8] min-h-screen text-[#1C2E1A] font-sans pt-20 relative">
       {/* Progress Bar */}
-      <div className="fixed top-0 left-0 w-full h-1 z-50 bg-neutral-100">
-        <div className="h-full bg-brand-accent origin-left transform scale-x-0 animate-scroll-progress"></div>
+      <div className="fixed top-0 left-0 w-full h-1 z-50 bg-amber-900/10">
+        <div className="h-full bg-[#2E5E35] origin-left transform scale-x-0 animate-scroll-progress"></div>
       </div>
 
       <article>
@@ -92,62 +92,63 @@ export const BlogDetails: React.FC = () => {
         </div>
 
         {/* Content */}
-        <div className="max-w-3xl mx-auto px-6 py-20">
+        <div className="max-w-3xl mx-auto px-6 py-12 md:py-20">
           <Reveal>
-            <p className="text-2xl font-light text-neutral-800 mb-12 border-l-4 border-brand-accent pl-6 italic leading-relaxed">
-              {post.excerpt}
-            </p>
+            <div className="bg-[#FCFBF8] border border-amber-900/10 rounded-3xl shadow-sm p-8 md:p-12">
+              <p className="text-2xl font-light text-neutral-800 mb-12 border-l-4 border-[#2E5E35] pl-6 italic leading-relaxed">
+                {post.excerpt}
+              </p>
 
-            <BlogContentRenderer content={post.content} />
+              <BlogContentRenderer content={post.content} />
 
-            {/* Tags */}
-            <div className="mt-16 pt-8 border-t border-neutral-100">
-              <div className="flex flex-wrap gap-2">
-                {post.tags.map(tag => (
-                  <span key={tag} className="px-4 py-2 bg-neutral-100 rounded-full text-sm text-neutral-600 hover:bg-neutral-200 cursor-pointer transition-colors border border-neutral-200">
-                    #{tag}
-                  </span>
-                ))}
+              {/* Tags */}
+              <div className="mt-16 pt-8 border-t border-amber-900/10">
+                <div className="flex flex-wrap gap-2">
+                  {post.tags.map(tag => (
+                    <span key={tag} className="px-4 py-2 bg-[#FEFCE8] rounded-full text-sm text-neutral-600 hover:bg-white cursor-pointer transition-colors border border-amber-900/10">
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Share */}
+              <div className="mt-12 flex items-center justify-between bg-[#FEFCE8]/50 p-6 rounded-2xl border border-amber-900/10">
+                <span className="font-bold text-[#1C2E1A]">Share this story</span>
+                <div className="flex gap-4">
+                  <button
+                    onClick={handleShare}
+                    className="p-2.5 bg-white rounded-full shadow-sm hover:text-[#2E5E35] hover:border-[#2E5E35] transition-colors border border-neutral-200"
+                  >
+                    <IconShare2 className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
             </div>
-
-            {/* Share */}
-            <div className="mt-12 flex items-center justify-between bg-neutral-50 p-6 rounded-2xl border border-neutral-100">
-              <span className="font-bold text-neutral-900">Share this story</span>
-              <div className="flex gap-4">
-                <button
-                  onClick={handleShare}
-                  className="p-2 bg-white rounded-full shadow-sm hover:text-brand-accent transition-colors border border-neutral-100"
-                >
-                  <IconShare2 className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-
           </Reveal>
         </div>
       </article>
 
       {/* Related Posts */}
-      <section className="bg-neutral-50 py-24 border-t border-neutral-200">
+      <section className="bg-white/30 backdrop-blur-sm py-24 border-t border-amber-900/5">
         <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-3xl font-display font-bold text-neutral-900 mb-12">More from the Journal</h2>
+          <h2 className="text-3xl font-display font-bold text-[#1C2E1A] mb-12">More from the Journal</h2>
           <div className="grid md:grid-cols-3 gap-8">
             {relatedPosts.map((item, idx) => (
               <Reveal key={item.id} delay={idx * 100}>
-                <Link to={`/blog/${item.slug}`} target="_blank" rel="noopener noreferrer" className="group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 h-full flex flex-col">
+                <Link to={`/blog/${item.slug}`} target="_blank" rel="noopener noreferrer" className="group block bg-[#FCFBF8] rounded-2xl overflow-hidden shadow-sm border border-amber-900/10 hover:shadow-xl transition-all duration-300 h-full flex flex-col">
                   <div className="h-48 overflow-hidden relative">
                     <img src={item.image} alt={item.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                    <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-neutral-900 shadow-sm">
+                    <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-[#1C2E1A] shadow-sm border border-amber-900/5">
                       {item.category}
                     </div>
                   </div>
                   <div className="p-6 flex flex-col flex-grow">
-                    <h3 className="text-xl font-bold text-neutral-900 mb-3 group-hover:text-brand-accent transition-colors line-clamp-2">
+                    <h3 className="text-xl font-bold text-[#1C2E1A] mb-3 group-hover:text-[#2E5E35] transition-colors line-clamp-2">
                       {item.title}
                     </h3>
                     <p className="text-neutral-500 text-sm line-clamp-2 mb-4 flex-grow">{item.excerpt}</p>
-                    <span className="text-sm font-bold text-brand-dark flex items-center group-hover:underline">
+                    <span className="text-sm font-bold text-[#2E5E35] flex items-center group-hover:underline">
                       Read Story <IconArrowRight className="w-4 h-4 ml-1" />
                     </span>
                   </div>

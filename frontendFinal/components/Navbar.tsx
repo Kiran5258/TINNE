@@ -33,35 +33,32 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[100] bg-white backdrop-blur-md shadow-sm py-4 transition-all duration-300">
+    <nav className="fixed top-0 left-0 right-0 z-[100] bg-[#FEFCE8]/90 backdrop-blur-md border-b border-amber-900/5 shadow-sm py-5 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between relative">
 
         {/* Logo */}
-        <Link to="/" className="flex flex-col leading-none z-50 relative group">
-          <span className="text-3xl font-script font-bold text-brand-dark tracking-wide">Tinné</span>
-          <span className="text-[10px] uppercase tracking-widest text-neutral-500 font-sans">
-            From Grandma's Thinnai
-          </span>
+        <Link to="/" className="flex items-center space-x-2.5 leading-none z-50 relative group">
+          <img src="/logo.png" alt="Tinné logo" className="w-8 h-8 rounded-full border border-amber-900/10 object-cover" />
+          <div className="flex flex-col">
+            <span className="text-2xl font-script font-bold text-brand-dark tracking-wide group-hover:text-neutral-950 transition-colors">Tinné</span>
+            <span className="text-[9px] uppercase tracking-widest text-neutral-800 font-sans">
+              From Grandma's Thinnai
+            </span>
+          </div>
         </Link>
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center space-x-8">
           <NavLink to="/">Home</NavLink>
           <NavLink to="/about">About</NavLink>
-          <NavLink to="/blog">Blog</NavLink>
-
-          <Link
-            to="/join-team"
-            className="text-sm font-semibold text-emerald-700 border border-emerald-300 px-4 py-1.5 rounded-full
-            hover:bg-emerald-50 transition-all duration-300"
-          >
-            Join Team
-          </Link>
+          <NavLink to="/products">Shop</NavLink>
+          <NavLink to="/blog">Journal</NavLink>
+          <NavLink to="/contact">Contact</NavLink>
 
           <Link
             to="/products"
-            className="bg-brand-accent text-brand-dark px-6 py-2 rounded-full font-bold 
-            hover:bg-yellow-400 transition-all duration-300 shadow-sm 
+            className="bg-[#153A1D] text-white px-6 py-2 rounded-full font-bold 
+            hover:bg-[#2E5E35] transition-all duration-300 shadow-sm 
             hover:shadow-md transform hover:-translate-y-0.5"
           >
             Products
@@ -69,15 +66,15 @@ export const Navbar: React.FC = () => {
         </div>
 
         {/* Right Actions */}
-        <div className="hidden md:flex items-center space-x-6 z-50">
+        <div className="hidden md:flex items-center space-x-6 z-50 relative">
 
           {/* Search */}
-          <div className="relative flex items-center justify-end">
+          <div className="flex items-center justify-end">
             {isSearchOpen ? (
               <form
                 onSubmit={handleSearchSubmit}
-                className="absolute right-0 flex items-center bg-white border border-neutral-200 
-                rounded-full px-3 py-1 shadow-lg w-72 z-[110] transition-all animate-in slide-in-from-right-10"
+                className="absolute right-0 flex items-center bg-[#FCFBF8] border border-amber-900/20 
+                rounded-full px-3 py-1 shadow-lg w-64 z-[110] transition-all animate-in slide-in-from-right-10"
               >
                 <button type="submit" className="p-1 text-neutral-400 hover:text-brand-dark">
                   <IconSearch className="w-4 h-4" />
@@ -88,7 +85,7 @@ export const Navbar: React.FC = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search products..."
-                  className="bg-transparent text-sm w-full h-8 px-2 outline-none"
+                  className="bg-transparent text-sm w-full h-8 px-2 outline-none text-[#1C2E1A]"
                   autoFocus
                 />
 
@@ -103,24 +100,24 @@ export const Navbar: React.FC = () => {
             ) : (
               <button
                 onClick={() => setIsSearchOpen(true)}
-                className="p-2 rounded-full hover:bg-neutral-100 transition-colors"
+                className="p-2 rounded-full hover:bg-black/5 transition-colors"
               >
-                <IconSearch className="w-5 h-5 text-neutral-600 hover:text-neutral-900" />
+                <IconSearch className="w-5 h-5 text-neutral-800 hover:text-neutral-950" />
               </button>
             )}
           </div>
 
           {/* Account FIXED */}
           <Link to={authUser ? "/account" : "/login"} aria-label="Account">
-            <IconUser className="w-5 h-5 text-neutral-600 hover:text-neutral-900" />
+            <IconUser className="w-5 h-5 text-neutral-800 hover:text-neutral-950" />
           </Link>
 
           {/* Cart */}
           <Link to="/cart" className="relative group" aria-label="Cart">
-            <IconBag className="w-5 h-5 text-neutral-600 group-hover:text-neutral-900" />
+            <IconBag className="w-5 h-5 text-neutral-800 group-hover:text-neutral-950" />
 
             {cartCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-brand-accent text-brand-dark 
+              <span className="absolute -top-2 -right-2 bg-[#153A1D] text-white 
               text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full 
               animate-bounce-short">
                 {cartCount}
@@ -131,7 +128,7 @@ export const Navbar: React.FC = () => {
 
         {/* Mobile Menu Toggle */}
         <button
-          className="md:hidden z-50 relative p-2"
+          className="md:hidden z-50 relative p-2 text-brand-dark hover:text-neutral-950"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
           {isMenuOpen ? <IconClose /> : <IconMenu />}
@@ -140,7 +137,7 @@ export const Navbar: React.FC = () => {
         {/* Mobile Slide-over */}
         {createPortal(
           <div
-            className={`fixed inset-0 bg-white z-[90] transform transition-transform duration-500
+            className={`fixed inset-0 bg-[#FEFCE8] z-[90] transform transition-transform duration-500
             ease-in-out md:hidden flex flex-col pt-32 px-8 ${isMenuOpen ? "translate-x-0" : "translate-x-full"
               }`}
           >
@@ -180,13 +177,9 @@ export const Navbar: React.FC = () => {
 
               <Link to="/">Home</Link>
               <Link to="/about">About</Link>
-              <Link to="/blog">Blog</Link>
-              <Link to="/join-team" className="text-emerald-600 font-bold">
-                Join Team
-              </Link>
-              <Link to="/products" className="text-brand-dark font-bold">
-                Products
-              </Link>
+              <Link to="/products">Shop</Link>
+              <Link to="/blog">Journal</Link>
+              <Link to="/contact">Contact</Link>
 
               <div className="h-px bg-neutral-100 w-full my-4" />
 
@@ -218,9 +211,9 @@ const NavLink: React.FC<{ to: string; children: React.ReactNode }> = ({ to, chil
   return (
     <Link
       to={to}
-      className="text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors 
+      className="text-sm font-semibold text-neutral-800 hover:text-neutral-950 transition-colors 
       relative after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:w-0 
-      after:h-[2px] after:bg-brand-accent after:transition-all after:duration-300 hover:after:w-full"
+      after:h-[2px] after:bg-brand-dark after:transition-all after:duration-300 hover:after:w-full"
     >
       {children}
     </Link>

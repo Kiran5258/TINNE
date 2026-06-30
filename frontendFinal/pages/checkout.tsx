@@ -166,55 +166,57 @@ export const Checkout: React.FC = () => {
     new (window as any).Razorpay(options).open();
   };
   return (
-    <div className="pt-28 pb-20 max-w-4xl mx-auto px-6">
-      <h1 className="text-4xl font-display font-bold mb-6">Checkout</h1>
+    <div className="bg-[#FAF6F0] min-h-screen text-[#1C2E1A] font-sans pt-28 pb-20">
+      <div className="max-w-4xl mx-auto px-6">
+        <h1 className="text-4xl font-display font-bold mb-6 text-[#1C2E1A]">Checkout</h1>
 
-      {/* SHIPPING FORM */}
-      <div className="bg-white p-6 rounded-xl shadow mb-10">
-        <h2 className="text-2xl font-bold mb-4">Shipping Address</h2>
+        {/* SHIPPING FORM */}
+        <div className="bg-[#FCFBF8] border border-amber-900/10 p-6 rounded-xl shadow-sm mb-10">
+          <h2 className="text-2xl font-bold mb-4 text-[#1C2E1A]">Shipping Address</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {Object.keys(shipping).map((field) => (
-            <input
-              key={field}
-              name={field}
-              placeholder={field}
-              value={(shipping as any)[field]}
-              onChange={handleInput}
-              required
-              className="border px-4 py-3 rounded-lg w-full"
-            />
-          ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {Object.keys(shipping).map((field) => (
+              <input
+                key={field}
+                name={field}
+                placeholder={field}
+                value={(shipping as any)[field]}
+                onChange={handleInput}
+                required
+                className="border px-4 py-3 rounded-lg w-full bg-white border-amber-900/10 focus:outline-none focus:ring-1 focus:ring-[#2E5E35]"
+              />
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* PAYMENT SECTION */}
-      <div className="bg-white p-6 rounded-xl shadow">
-        <h2 className="text-2xl font-bold mb-4">Payment</h2>
+        {/* PAYMENT SECTION */}
+        <div className="bg-[#FCFBF8] border border-amber-900/10 p-6 rounded-xl shadow-sm">
+          <h2 className="text-2xl font-bold mb-4 text-[#1C2E1A]">Payment</h2>
 
-        <p className="text-lg mb-6">
-          Total Payable:{" "}
-          <span className="font-bold">₹{subtotal.toFixed(2)}</span>
-        </p>
+          <p className="text-lg mb-6">
+            Total Payable:{" "}
+            <span className="font-bold text-[#2E5E35]">₹{subtotal.toFixed(2)}</span>
+          </p>
 
-        <div className="flex gap-4">
-          {/* <Button size="lg" onClick={handleCOD}>
-            Cash on Delivery
-          </Button> */}
+          <div className="flex gap-4">
+            {/* <Button size="lg" onClick={handleCOD}>
+              Cash on Delivery
+            </Button> */}
 
-          <Button
-            size="lg"
-            variant="primary"
-            onClick={handleRazorpayPayment}
-            disabled={isProcessing}
-            className={`min-w-[150px] flex justify-center items-center ${isProcessing ? "opacity-75 cursor-not-allowed" : ""}`}
-          >
-            {isProcessing ? (
-              <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : (
-              "Pay Now"
-            )}
-          </Button>
+            <Button
+              size="lg"
+              variant="primary"
+              onClick={handleRazorpayPayment}
+              disabled={isProcessing}
+              className={`min-w-[150px] flex justify-center items-center ${isProcessing ? "opacity-75 cursor-not-allowed" : ""}`}
+            >
+              {isProcessing ? (
+                <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                "Pay Now"
+              )}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
